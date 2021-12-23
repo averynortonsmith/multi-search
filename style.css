@@ -1,0 +1,31 @@
+body {
+  font-family: monospace;
+  font-size: 16px;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+textarea {
+  width: 400px;
+  height: 200px;
+}
+
+input {
+  margin-bottom: 8px;
+}
+
+button {
+  height: 19px;
+  width: 19px;
+  border: none;
+  font-size: 10px;
+  margin-left: 4px;
+  cursor: pointer;
+  vertical-align: top;
+}
+
+.term {
+  margin: 4px 2px;
+}

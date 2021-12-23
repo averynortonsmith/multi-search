@@ -1,7 +1,19 @@
 import { mount, refresh, v } from "https://cdn.jsdelivr.net/gh/villeray/framework@master/src/villeray.js";
 
-let terms = [];
+const terms = {};
+const oldColors = [];
 let hue = 0;
+
+function newColor() {
+  if (oldColors.length > 0) {
+    return oldColors.pop();
+  }
+
+  const color = `hsl(${hue}, 100%, 70%)`;
+  hue += 41;
+
+  return color;
+}
 
 const newTerm = document.querySelector("#new-term");
 const input = document.querySelector("#input");
@@ -12,13 +24,20 @@ newTerm.onchange = (e) => {
     return;
   }
 
-  const color = `hsl(${hue}, 100%, 70%)`;
-  hue += 41;
+  if (term in terms) {
+    return;
+  }
 
-  terms.push({ term, color });
+  terms[term] = newColor();
   newTerm.value = "";
   refresh();
 };
+
+function removeTerm(term, color) {
+  delete terms[term];
+  oldColors.push(color);
+  refresh();
+}
 
 input.oninput = (e) => {
   refresh();
@@ -28,12 +47,23 @@ function colorStyle(color) {
   return { style: { backgroundColor: color } };
 }
 
-function showTerm({ term, color }) {
-  return v("div", {}, v("span", colorStyle(color), term));
+function showTerm(term, color) {
+  return v(
+    "div",
+    { class: "term" },
+    v("span", colorStyle(color), term),
+    v(
+      "button",
+      {
+        onclick: () => removeTerm(term, color),
+      },
+      "x"
+    )
+  );
 }
 
 function showTerms() {
-  return terms.map(showTerm);
+  return Object.entries(terms).map(([term, color]) => showTerm(term, color));
 }
 
 function* showResults() {
@@ -44,7 +74,7 @@ function* showResults() {
   while (index < lowered.length) {
     let matched = false;
 
-    for (const { term, color } of terms) {
+    for (const [term, color] of Object.entries(terms)) {
       if (lowered.startsWith(term, index)) {
         const nextIndex = index + term.length;
         const match = text.slice(index, nextIndex);
